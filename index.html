@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A premium Pokédex with comprehensive filters for Type, Evolution Stage, Generation, and Games." />
+  <title>Pokédex — Explore All Pokémon</title>
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Header -->
+  <header id="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg class="pokeball-icon" viewBox="0 0 100 100" width="36" height="36">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="4"/>
+          <path d="M2,50 H98" stroke="currentColor" stroke-width="4"/>
+          <circle cx="50" cy="50" r="16" fill="none" stroke="currentColor" stroke-width="4"/>
+          <circle cx="50" cy="50" r="8" fill="currentColor"/>
+        </svg>
+        <h1>Pokédex</h1>
+      </div>
+      <div class="search-container" id="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search by name or ID..." autocomplete="off" />
+        <kbd class="search-shortcut">⌘K</kbd>
+      </div>
+      <button id="filter-toggle" class="filter-toggle-btn" aria-label="Toggle Filters">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M6 12h12M8 18h8"/>
+        </svg>
+        <span class="filter-badge" id="filter-badge" hidden>0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main id="app-main">
+    <!-- Filter Sidebar -->
+    <aside id="filter-sidebar" class="filter-sidebar">
+      <div class="filter-sidebar-header">
+        <h2>Filters</h2>
+        <button id="clear-all-filters" class="clear-all-btn">Clear All</button>
+      </div>
+
+      <!-- Active Filters -->
+      <div id="active-filters" class="active-filters" hidden>
+        <div id="active-filter-tags" class="filter-tags"></div>
+      </div>
+
+      <!-- Type Filter -->
+      <details class="filter-group" open>
+        <summary><span>Type</span><span class="filter-count" id="type-count"></span></summary>
+        <div class="filter-options" id="type-filter-options"></div>
+      </details>
+
+      <!-- Evolution Stage Filter -->
+      <details class="filter-group" open>
+        <summary><span>Evolution Stage</span><span class="filter-count" id="stage-count"></span></summary>
+        <div class="filter-options" id="stage-filter-options">
+          <label class="filter-checkbox"><input type="checkbox" value="basic" data-filter="stage"/><span class="cb-mark"></span>Basic</label>
+          <label class="filter-checkbox"><input type="checkbox" value="stage-1" data-filter="stage"/><span class="cb-mark"></span>Stage 1</label>
+          <label class="filter-checkbox"><input type="checkbox" value="stage-2" data-filter="stage"/><span class="cb-mark"></span>Stage 2</label>
+          <label class="filter-checkbox"><input type="checkbox" value="no-evolution" data-filter="stage"/><span class="cb-mark"></span>No Evolution</label>
+        </div>
+      </details>
+
+      <!-- Generation Filter -->
+      <details class="filter-group" open>
+        <summary><span>Generation</span><span class="filter-count" id="gen-count"></span></summary>
+        <div class="filter-options" id="gen-filter-options"></div>
+      </details>
+
+      <!-- Games Filter -->
+      <details class="filter-group">
+        <summary><span>Games</span><span class="filter-count" id="game-count"></span></summary>
+        <div class="filter-options scrollable" id="game-filter-options"></div>
+      </details>
+
+      <!-- Category Filter -->
+      <details class="filter-group">
+        <summary><span>Category</span><span class="filter-count" id="cat-count"></span></summary>
+        <div class="filter-options" id="cat-filter-options">
+          <label class="filter-checkbox"><input type="checkbox" value="baby" data-filter="category"/><span class="cb-mark"></span>Baby</label>
+          <label class="filter-checkbox"><input type="checkbox" value="legendary" data-filter="category"/><span class="cb-mark"></span>Legendary</label>
+          <label class="filter-checkbox"><input type="checkbox" value="mythical" data-filter="category"/><span class="cb-mark"></span>Mythical</label>
+        </div>
+      </details>
+    </aside>
+
+    <!-- Pokémon Grid -->
+    <section id="pokemon-section" class="pokemon-section">
+      <div class="grid-header">
+        <p id="result-count" class="result-count">Loading Pokémon...</p>
+        <div class="sort-controls">
+          <select id="sort-select">
+            <option value="id-asc">ID ↑</option>
+            <option value="id-desc">ID ↓</option>
+            <option value="name-asc">Name A–Z</option>
+            <option value="name-desc">Name Z–A</option>
+          </select>
+        </div>
+      </div>
+      <!-- Progress Bar -->
+      <div id="load-progress" class="load-progress">
+        <div class="load-progress-track">
+          <div id="load-progress-bar" class="load-progress-bar"></div>
+        </div>
+        <p id="load-progress-text" class="load-progress-text">Loading Pokémon... 0 / 1025</p>
+      </div>
+      <div id="pokemon-grid" class="pokemon-grid"></div>
+      <div id="loading-indicator" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>Loading more Pokémon...</p>
+      </div>
+      <div id="no-results" class="no-results" hidden>
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+          <circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2M9 9h.01M15 9h.01"/>
+        </svg>
+        <p>No Pokémon found matching your filters</p>
+        <button id="reset-filters-btn" class="reset-btn">Reset Filters</button>
+      </div>
+      <!-- Pagination -->
+      <nav id="pagination" class="pagination" hidden></nav>
+    </section>
+  </main>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal-overlay" hidden>
+    <div class="modal-content" id="modal-content">
+      <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+      <div id="modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
