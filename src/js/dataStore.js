@@ -1,5 +1,30 @@
 // Central data store for pokemon data
-import { fetchPokemonBatch, fetchEvolutionChain, parseEvolutionChain } from './api.js';
+import { fetchPokemonBatch, fetchEvolutionChain, parseEvolutionChain, fetchEncounters } from './api.js';
+ 
+const POKEDEX_MAP = {
+  'kanto': '(Red/Blue/Yellow)',
+  'original-johto': '(Gold/Silver/Crystal)',
+  'hoenn': '(Ruby/Sapphire/Emerald)',
+  'updated-kanto': '(FireRed/LeafGreen)',
+  'original-sinnoh': '(Diamond/Pearl/Platinum)',
+  'updated-johto': '(HeartGold/SoulSilver)',
+  'original-unova': '(Black/White)',
+  'updated-unova': '(Black 2/White 2)',
+  'kalos-central': '(X/Y — Central Kalos)',
+  'kalos-coastal': '(X/Y — Coastal Kalos)',
+  'kalos-mountain': '(X/Y — Mountain Kalos)',
+  'updated-hoenn': '(Omega Ruby/Alpha Sapphire)',
+  'original-alola': '(Sun/Moon)',
+  'updated-alola': '(Ultra Sun/Ultra Moon)',
+  'letsgo-kanto': '(Let\'s Go Pikachu/Let\'s Go Eevee)',
+  'galar': '(Sword/Shield)',
+  'isle-of-armor': '(The Isle of Armor)',
+  'crown-tundra': '(The Crown Tundra)',
+  'hisui': '(Legends: Arceus)',
+  'paldea': '(Scarlet/Violet)',
+  'kitakami': '(The Teal Mask)',
+  'blueberry': '(The Indigo Disk)'
+};
 
 class DataStore {
   constructor() {
@@ -92,24 +117,63 @@ class DataStore {
       flavorText: this.getFlavorText(species),
       genus: this.getGenus(species),
       color: species.color?.name || 'gray',
+      localPokedex: this.getLocalPokedex(species),
+      varieties: this.getVarieties(species),
+      genderRate: species.gender_rate,
+      captureRate: species.capture_rate,
+      baseExp: pokemon.base_experience,
+      moves: pokemon.moves,
       // Will be filled when evo chain is loaded
       evolutionStage: null,
-      evolutionChain: null
+      evolutionChain: null,
+      encounters: null
     };
+  }
+ 
+  getLocalPokedex(species) {
+    if (!species.pokedex_numbers) return [];
+    return species.pokedex_numbers
+      .filter(p => POKEDEX_MAP[p.pokedex.name])
+      .map(p => ({
+        label: POKEDEX_MAP[p.pokedex.name],
+        id: String(p.entry_number).padStart(4, '0')
+      }));
   }
 
   getFlavorText(species) {
     const entries = species.flavor_text_entries || [];
     const en = entries.filter(e => e.language.name === 'en');
-    if (en.length === 0) return '';
-    const latest = en[en.length - 1];
-    return latest.flavor_text.replace(/[\n\f\r]/g, ' ');
+    const result = {};
+    en.forEach(e => {
+      result[e.version.name] = e.flavor_text.replace(/[\n\f\r]/g, ' ');
+    });
+    return result;
   }
 
   getGenus(species) {
     const genera = species.genera || [];
     const en = genera.find(g => g.language.name === 'en');
     return en ? en.genus : '';
+  }
+
+  getVarieties(species) {
+    if (!species.varieties || species.varieties.length <= 1) return [];
+    return species.varieties
+      .filter(v => !v.is_default)
+      .map(v => {
+        const parts = v.pokemon.url.split('/').filter(Boolean);
+        const id = parseInt(parts[parts.length - 1]);
+        const rawName = v.pokemon.name;
+        // Format: "pikachu-rock-star" → "Rock Star"
+        const baseName = species.name || '';
+        const formName = rawName.replace(baseName + '-', '').replace(/-/g, ' ');
+        return {
+          id,
+          name: formName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+          rawName,
+          sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
+        };
+      });
   }
 
   async loadEvolutionChain(url) {
@@ -166,6 +230,21 @@ class DataStore {
     }
 
     this.notify();
+  }
+
+  async loadEncounters(id) {
+    const pokemon = this.pokemon.get(id);
+    if (!pokemon || pokemon.encounters) return pokemon?.encounters;
+
+    try {
+      const data = await fetchEncounters(id);
+      pokemon.encounters = data;
+      this.notify();
+      return data;
+    } catch (e) {
+      console.warn('Failed to load encounters:', id, e);
+      return [];
+    }
   }
 
   getAll() {

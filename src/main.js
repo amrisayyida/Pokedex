@@ -410,6 +410,7 @@ function setupEventListeners() {
 
 // ===== Modal =====
 async function openModal(id) {
+  window.currentPokemonId = id;
   modal.hidden = false;
   requestAnimationFrame(() => {
     modal.classList.add('visible');
@@ -428,6 +429,8 @@ function closeModal() {
     document.body.style.overflow = '';
   }, 300);
 }
+
+window.openModal = openModal;
 
 // ===== Sidebar =====
 let overlay = null;

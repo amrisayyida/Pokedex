@@ -1,4 +1,6 @@
 // Filter state and logic
+import { isExcluded } from './gameExclusions.js';
+
 
 class FilterManager {
   constructor() {
@@ -137,6 +139,8 @@ class FilterManager {
       // Game
       if (f.game) {
         if (!pokemon.games.includes(f.game)) return false;
+        // Apply manual exclusions
+        if (isExcluded(pokemon.id, f.game)) return false;
       }
 
       // Category

@@ -1,5 +1,7 @@
 import fs from 'fs';
 import { fetchPokemonList, fetchPokemonBatch, fetchEvolutionChain, parseEvolutionChain } from './src/js/api.js';
+import { GAME_EXCLUSIONS } from './src/js/gameExclusions.js';
+
 
 // Script to generate a static JSON database for Nordcraft/Toddle import.
 // Run with: node create_nordcraft_db.js
@@ -55,9 +57,16 @@ async function createDatabase() {
         }
 
         // Build Minified Object
+        const allGames = pokemon.game_indices.map(g => g.version.name);
+        const filteredGames = allGames.filter(gameName => {
+          const exclusions = GAME_EXCLUSIONS[gameName] || [];
+          return !exclusions.includes(pokemon.id);
+        });
+
         db.push({
           id: pokemon.id,
           name: pokemon.name,
+          games: filteredGames,
           types: pokemon.types.map(t => t.type.name),
           // Clean generation string: "generation-i" -> "1"
           gen: species.generation?.name.replace('generation-', '') || 'unknown',
