@@ -8,12 +8,27 @@ let activeMoveMethod = 'level-up';
 let currentVersion = 'red'; // Default version for the active gen tab
 let moveSearchQuery = '';
 const moveTypeCache = new Map(); // name -> type
+let tmHmDb = null; // Cache for TM/HM mapping
+let currentShowNav = true;
 
-export async function renderPokemonDetail(pokemonId) {
+async function loadTmHmDb() {
+  if (tmHmDb) return;
+  try {
+    const res = await fetch('/tm_hm_db.json');
+    if (res.ok) tmHmDb = await res.json();
+  } catch (e) {
+    console.warn('Could not load tm_hm_db.json', e);
+    tmHmDb = {};
+  }
+}
+
+export async function renderPokemonDetail(pokemonId, showNav = true) {
+  currentShowNav = showNav;
   const pokemon = store.getById(pokemonId);
   if (!pokemon) return '<p>Pokémon not found.</p>';
 
   // Load supplemental data
+  await loadTmHmDb();
   if (pokemon.evolutionChainUrl && !pokemon.evolutionChain) {
     await store.loadEvolutionChain(pokemon.evolutionChainUrl);
   }
@@ -38,7 +53,7 @@ export async function renderPokemonDetail(pokemonId) {
     activeTab = 'INFORMATION';
   }
 
-  return renderFullDetail(pokemon, availableGens);
+  return renderFullDetail(pokemon, availableGens, showNav);
 }
 
 async function prefetchMoveTypes(pokemon, genLabel) {
@@ -101,12 +116,29 @@ function getAvailableGens(pokemon) {
   return Array.from(new Set(gens)).sort();
 }
 
-function renderFullDetail(pokemon, availableGens) {
+function renderFullDetail(pokemon, availableGens, showNav = true) {
   const primaryType = pokemon.types[0];
   const typeColor = TYPE_COLORS[primaryType]?.bg || '#888';
   
+  const prevId = pokemon.id > 1 ? pokemon.id - 1 : 1025;
+  const nextId = pokemon.id < 1025 ? pokemon.id + 1 : 1;
+
   return `
     <div class="detail-view-new" style="--detail-color: ${typeColor}">
+      ${showNav ? `
+      <div class="detail-navigation-premium">
+        <button class="nav-btn-premium prev" onclick="window.switchPokemon(${prevId})">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          <span class="nav-btn-text">PREV</span>
+        </button>
+        <div class="nav-id-badge">#${String(pokemon.id).padStart(3, '0')}</div>
+        <button class="nav-btn-premium next" onclick="window.switchPokemon(${nextId})">
+          <span class="nav-btn-text">NEXT</span>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      ` : ''}
+
       <span class="bg-id-text">#${String(pokemon.id).padStart(2, '0')}</span>
       
       <!-- Header Section -->
@@ -546,7 +578,14 @@ function renderMoves(pokemon, genLabel) {
 
   return filteredMoves.map(m => {
     const detail = m.version_group_details.find(d => groups.includes(d.version_group.name) && d.move_learn_method.name === activeMoveMethod);
-    const req = activeMoveMethod === 'level-up' ? `LV ${detail.level_learned_at}` : activeMoveMethod === 'machine' ? 'TM' : 'Special';
+    let req;
+    if (activeMoveMethod === 'level-up') {
+      req = detail.level_learned_at > 0 ? `Lv. ${detail.level_learned_at}` : 'Lv. 1';
+    } else if (activeMoveMethod === 'machine') {
+      req = (tmHmDb && tmHmDb[m.move.name]) ? tmHmDb[m.move.name] : 'TM';
+    } else {
+      req = 'Special';
+    }
     const type = moveTypeCache.get(m.move.name) || 'normal';
     const typeColor = TYPE_COLORS[type]?.bg || '#888';
     
@@ -653,7 +692,8 @@ window.switchDetailTab = async function(tab) {
 
   if (pokemon) {
     const availableGens = getAvailableGens(pokemon);
-    document.getElementById('modal-body').innerHTML = renderFullDetail(pokemon, availableGens);
+    const body = document.getElementById('modal-body') || document.getElementById('tracker-modal-body');
+    if (body) body.innerHTML = renderFullDetail(pokemon, availableGens, currentShowNav);
   }
 };
 
@@ -662,13 +702,14 @@ window.switchVersion = async function(version) {
   const pokemon = store.getById(window.currentPokemonId);
   if (pokemon) {
     const availableGens = getAvailableGens(pokemon);
-    document.getElementById('modal-body').innerHTML = renderFullDetail(pokemon, availableGens);
+    const body = document.getElementById('modal-body') || document.getElementById('tracker-modal-body');
+    if (body) body.innerHTML = renderFullDetail(pokemon, availableGens, currentShowNav);
   }
 };
 
 window.switchPokemon = function(id) {
   if (window.openModal) {
-    window.openModal(id);
+    window.openModal(id, currentShowNav);
   }
 };
 
@@ -677,7 +718,8 @@ window.switchMoveMethod = function(method) {
   const pokemon = store.getById(window.currentPokemonId);
   if (pokemon) {
     const availableGens = getAvailableGens(pokemon);
-    document.getElementById('modal-body').innerHTML = renderFullDetail(pokemon, availableGens);
+    const body = document.getElementById('modal-body') || document.getElementById('tracker-modal-body');
+    if (body) body.innerHTML = renderFullDetail(pokemon, availableGens, currentShowNav);
   }
 };
 

@@ -65,12 +65,16 @@ class DataStore {
       // Load details in batches of 50
       const BATCH_SIZE = 50;
       for (let i = 0; i < allIds.length; i += BATCH_SIZE) {
-        const batchIds = allIds.slice(i, i + BATCH_SIZE);
-        const batchData = await fetchPokemonBatch(batchIds);
+        try {
+          const batchIds = allIds.slice(i, i + BATCH_SIZE);
+          const batchData = await fetchPokemonBatch(batchIds);
 
-        for (const { pokemon, species } of batchData) {
-          const normalized = this.normalizePokemon(pokemon, species);
-          this.pokemon.set(normalized.id, normalized);
+          for (const { pokemon, species } of batchData) {
+            const normalized = this.normalizePokemon(pokemon, species);
+            this.pokemon.set(normalized.id, normalized);
+          }
+        } catch (batchErr) {
+          console.warn('Failed to load batch, skipping...', batchErr);
         }
 
         if (onProgress) {
@@ -86,6 +90,8 @@ class DataStore {
   }
 
   normalizePokemon(pokemon, species) {
+    if (!pokemon) return null;
+    
     const games = pokemon.game_indices
       ? pokemon.game_indices.map(g => g.version.name)
       : [];
@@ -93,36 +99,36 @@ class DataStore {
     return {
       id: pokemon.id,
       name: pokemon.name,
-      types: pokemon.types.map(t => t.type.name),
-      stats: pokemon.stats.reduce((acc, s) => {
+      types: pokemon.types ? pokemon.types.map(t => t.type.name) : [],
+      stats: pokemon.stats ? pokemon.stats.reduce((acc, s) => {
         acc[s.stat.name] = s.base_stat;
         return acc;
-      }, {}),
-      sprite: pokemon.sprites.other?.['official-artwork']?.front_default
-        || pokemon.sprites.front_default,
-      spriteSmall: pokemon.sprites.front_default,
+      }, {}) : {},
+      sprite: pokemon.sprites?.other?.['official-artwork']?.front_default
+        || pokemon.sprites?.front_default,
+      spriteSmall: pokemon.sprites?.front_default,
       height: pokemon.height,
       weight: pokemon.weight,
-      abilities: pokemon.abilities.map(a => ({
+      abilities: pokemon.abilities ? pokemon.abilities.map(a => ({
         name: a.ability.name,
         isHidden: a.is_hidden
-      })),
-      generation: species.generation?.name || 'unknown',
-      isBaby: species.is_baby,
-      isLegendary: species.is_legendary,
-      isMythical: species.is_mythical,
+      })) : [],
+      generation: species?.generation?.name || 'unknown',
+      isBaby: species?.is_baby || false,
+      isLegendary: species?.is_legendary || false,
+      isMythical: species?.is_mythical || false,
       games,
-      evolutionChainUrl: species.evolution_chain?.url,
-      evolvesFrom: species.evolves_from_species?.name || null,
-      flavorText: this.getFlavorText(species),
-      genus: this.getGenus(species),
-      color: species.color?.name || 'gray',
-      localPokedex: this.getLocalPokedex(species),
-      varieties: this.getVarieties(species),
-      genderRate: species.gender_rate,
-      captureRate: species.capture_rate,
+      evolutionChainUrl: species?.evolution_chain?.url,
+      evolvesFrom: species?.evolves_from_species?.name || null,
+      flavorText: species ? this.getFlavorText(species) : {},
+      genus: species ? this.getGenus(species) : '',
+      color: species?.color?.name || 'gray',
+      localPokedex: species ? this.getLocalPokedex(species) : [],
+      varieties: species ? this.getVarieties(species) : [],
+      genderRate: species?.gender_rate ?? -1,
+      captureRate: species?.capture_rate ?? 0,
       baseExp: pokemon.base_experience,
-      moves: pokemon.moves,
+      moves: pokemon.moves || [],
       // Will be filled when evo chain is loaded
       evolutionStage: null,
       evolutionChain: null,

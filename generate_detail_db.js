@@ -2,7 +2,7 @@ import fs from 'fs';
 import { fetchPokemonList, fetchPokemonBatch } from './src/js/api.js';
 
 async function generateFullDetails() {
-  console.log('🚀 Starting Full Detail Generation (this might take a few minutes)...');
+  console.log('🚀 Starting Full Detail Generation (lightweight)...');
   
   try {
     const list = await fetchPokemonList(1025, 0);

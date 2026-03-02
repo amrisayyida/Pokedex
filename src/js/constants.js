@@ -104,3 +104,75 @@ export const VERSION_TO_FOLDER = {
   'sword': 'sword-shield', 'shield': 'sword-shield', 'brilliant-diamond': 'brilliant-diamond-shining-pearl', 'shining-pearl': 'brilliant-diamond-shining-pearl', 'legends-arceus': 'legends-arceus',
   'scarlet': 'scarlet-violet', 'violet': 'scarlet-violet'
 };
+
+// Maximum national dex ID catchable in each game
+// (Used to hide games in modal where a Pokemon didn't exist yet)
+export const GAME_DEX_LIMITS = {
+  'red': 151, 'blue': 151, 'yellow': 151,
+  'gold': 251, 'silver': 251, 'crystal': 251,
+  'ruby': 386, 'sapphire': 386, 'emerald': 386, 'firered': 386, 'leafgreen': 386,
+  'diamond': 493, 'pearl': 493, 'platinum': 493, 'heartgold': 493, 'soulsilver': 493,
+  'black': 649, 'white': 649, 'black-2': 649, 'white-2': 649,
+  'x': 721, 'y': 721, 'omega-ruby': 721, 'alpha-sapphire': 721,
+  'sun': 809, 'moon': 809, 'ultra-sun': 809, 'ultra-moon': 809,
+  'lets-go-pikachu': 809, 'lets-go-eevee': 809,
+  'sword': 898, 'shield': 898, 'brilliant-diamond': 898, 'shining-pearl': 898, 'legends-arceus': 898,
+  'scarlet': 1025, 'violet': 1025
+};
+
+// Gen 1 games had no shiny mechanic
+export const NO_SHINY_GAMES = new Set(['red', 'blue', 'yellow']);
+
+// Regions with national-dex ID ranges
+export const REGIONS = {
+  kanto:  { name: 'Kanto',  minId: 1,   maxId: 151  },
+  johto:  { name: 'Johto',  minId: 152, maxId: 251  },
+  hoenn:  { name: 'Hoenn',  minId: 252, maxId: 386  },
+  sinnoh: { name: 'Sinnoh', minId: 387, maxId: 493  },
+  unova:  { name: 'Unova',  minId: 494, maxId: 649  },
+  kalos:  { name: 'Kalos',  minId: 650, maxId: 721  },
+  alola:  { name: 'Alola',  minId: 722, maxId: 809  },
+  galar:  { name: 'Galar',  minId: 810, maxId: 905  },
+  paldea: { name: 'Paldea', minId: 906, maxId: 1025 },
+};
+
+// All games in order (for sub-tracker lists)
+export const ALL_GAMES = [
+  { key: 'red',               label: 'Pokémon Red'            },
+  { key: 'blue',              label: 'Pokémon Blue'           },
+  { key: 'yellow',            label: 'Pokémon Yellow'         },
+  { key: 'gold',              label: 'Pokémon Gold'           },
+  { key: 'silver',            label: 'Pokémon Silver'         },
+  { key: 'crystal',           label: 'Pokémon Crystal'        },
+  { key: 'ruby',              label: 'Pokémon Ruby'           },
+  { key: 'sapphire',          label: 'Pokémon Sapphire'       },
+  { key: 'emerald',           label: 'Pokémon Emerald'        },
+  { key: 'firered',           label: 'Pokémon FireRed'        },
+  { key: 'leafgreen',         label: 'Pokémon LeafGreen'      },
+  { key: 'diamond',           label: 'Pokémon Diamond'        },
+  { key: 'pearl',             label: 'Pokémon Pearl'          },
+  { key: 'platinum',          label: 'Pokémon Platinum'       },
+  { key: 'heartgold',         label: 'Pokémon HeartGold'      },
+  { key: 'soulsilver',        label: 'Pokémon SoulSilver'     },
+  { key: 'black',             label: 'Pokémon Black'          },
+  { key: 'white',             label: 'Pokémon White'          },
+  { key: 'black-2',           label: 'Pokémon Black 2'        },
+  { key: 'white-2',           label: 'Pokémon White 2'        },
+  { key: 'x',                 label: 'Pokémon X'              },
+  { key: 'y',                 label: 'Pokémon Y'              },
+  { key: 'omega-ruby',        label: 'Omega Ruby'             },
+  { key: 'alpha-sapphire',    label: 'Alpha Sapphire'         },
+  { key: 'sun',               label: 'Pokémon Sun'            },
+  { key: 'moon',              label: 'Pokémon Moon'           },
+  { key: 'ultra-sun',         label: 'Ultra Sun'              },
+  { key: 'ultra-moon',        label: 'Ultra Moon'             },
+  { key: 'lets-go-pikachu',   label: "Let's Go Pikachu"       },
+  { key: 'lets-go-eevee',     label: "Let's Go Eevee"         },
+  { key: 'sword',             label: 'Pokémon Sword'          },
+  { key: 'shield',            label: 'Pokémon Shield'         },
+  { key: 'brilliant-diamond', label: 'Brilliant Diamond'      },
+  { key: 'shining-pearl',     label: 'Shining Pearl'          },
+  { key: 'legends-arceus',    label: 'Legends: Arceus'        },
+  { key: 'scarlet',           label: 'Pokémon Scarlet'        },
+  { key: 'violet',            label: 'Pokémon Violet'         },
+];

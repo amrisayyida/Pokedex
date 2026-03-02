@@ -6,12 +6,11 @@
 
 export const GAME_EXCLUSIONS = {
   "red": [
-    2,
-    4,
-    6
+    1
   ],
   "blue": [
-    1
+    1,
+    3
   ]
 };
 

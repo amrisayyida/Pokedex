@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="PokéPedia Tracker — Track your Pokémon collection across every game."/>
+  <title>PokéTracker — Track Your Collection</title>
+  <link rel="icon" type="image/svg+xml" href="/vite.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header id="tracker-header">
+    <div class="tracker-header-top">
+      <div class="tracker-logo-bg" aria-hidden="true">
+        <span class="tracker-logo-bg-text">POKEPEDIA</span>
+      </div>
+      <div class="tracker-logo">
+        <svg class="pokeball-logo-svg" viewBox="0 0 100 100" width="30" height="30">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="5"/>
+          <path d="M2,50 H98" stroke="currentColor" stroke-width="5"/>
+          <circle cx="50" cy="50" r="16" fill="none" stroke="currentColor" stroke-width="5"/>
+          <circle cx="50" cy="50" r="8" fill="currentColor"/>
+        </svg>
+        <div>
+          <h1>POKEPEDIA</h1>
+          <div class="tracker-logo-sub">Collection Tracker</div>
+        </div>
+      </div>
+      <div class="tracker-header-actions">
+        <button id="export-btn" class="header-action-btn" title="Export your progress as JSON">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Export
+        </button>
+        <button id="import-btn" class="header-action-btn" title="Import a saved backup">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Import
+        </button>
+        <a href="index.html" class="nav-link-header">Pokédex</a>
+      </div>
+    </div>
+
+    <div class="tracker-stats-bar">
+      <div class="stat-card-tracker" id="sc-national">
+        <span class="stat-num-tracker" id="stat-national">0</span>
+        <span class="stat-label-tracker">National Dex</span>
+        <span class="stat-sub-tracker">/ 1025 unique</span>
+      </div>
+      <div class="stat-card-tracker" id="sc-total">
+        <span class="stat-num-tracker" id="stat-total">0</span>
+        <span class="stat-label-tracker">Total Caught</span>
+        <span class="stat-sub-tracker">across all games</span>
+      </div>
+      <div class="stat-card-tracker" id="sc-shiny">
+        <span class="stat-num-tracker" id="stat-shiny">✨ 0</span>
+        <span class="stat-label-tracker">Unique Shiny</span>
+        <span class="stat-sub-tracker" id="stat-shiny-total">0 total</span>
+      </div>
+      <div class="stat-card-tracker" id="sc-games">
+        <span class="stat-num-tracker" id="stat-games">0</span>
+        <span class="stat-label-tracker">Games Played</span>
+        <span class="stat-sub-tracker">/ 37 games</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main id="tracker-main">
+
+    <!-- Sidebar -->
+    <aside id="tracker-sidebar">
+
+      <!-- Tracking Filters -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">View Filter</div>
+        <button class="tracking-filter-btn active" data-filter="all">
+          <span class="filter-dot"></span>
+          All Pokémon
+          <span class="filter-count-badge" id="fc-all">–</span>
+        </button>
+        <button class="tracking-filter-btn" data-filter="caught">
+          <span class="filter-dot" style="background:#06d6a0"></span>
+          Caught
+          <span class="filter-count-badge" id="fc-caught">0</span>
+        </button>
+        <button class="tracking-filter-btn" data-filter="missing">
+          <span class="filter-dot" style="background:#555"></span>
+          Missing
+          <span class="filter-count-badge" id="fc-missing">0</span>
+        </button>
+        <button class="tracking-filter-btn" data-filter="shiny">
+          <span class="filter-dot" style="background:#ffd700"></span>
+          Shiny Caught
+          <span class="filter-count-badge" id="fc-shiny">0</span>
+        </button>
+        <button class="tracking-filter-btn" data-filter="shiny-missing">
+          <span class="filter-dot" style="background:#888"></span>
+          Shiny Missing
+          <span class="filter-count-badge" id="fc-shiny-missing">0</span>
+        </button>
+      </div>
+
+      <!-- Games Sub-tracker -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Games</div>
+        <div id="games-subtracker"></div>
+      </div>
+
+      <!-- Regions Sub-tracker -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Regions</div>
+        <div id="regions-subtracker"></div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Milestones</div>
+        <div id="milestones-tracker"></div>
+      </div>
+
+    </aside>
+
+    <!-- Main content -->
+    <section id="tracker-content">
+      <div class="table-controls">
+        <div class="tracker-search-wrap">
+          <svg class="tracker-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input type="text" id="tracker-search" placeholder="Search by name or #ID..."/>
+        </div>
+        <div id="context-badge" hidden class="tracker-context-badge">
+          <span id="context-label"></span>
+          <button class="clear-ctx" id="clear-context" onclick="window.clearTrackerContext && window.clearTrackerContext()" title="Back to main view">&times;</button>
+        </div>
+        <span id="tracker-result-count"></span>
+      </div>
+
+      <!-- Load progress -->
+      <div class="tracker-progress-wrap" id="tracker-progress-wrap">
+        <div class="tracker-progress-track">
+          <div class="tracker-progress-fill" id="tracker-progress-bar" style="width:0%"></div>
+        </div>
+        <p id="tracker-progress-text">Loading Pokémon...</p>
+      </div>
+
+      <!-- Table -->
+      <div class="pokemon-table-wrap">
+        <table class="pokemon-table" id="pokemon-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Sprite</th>
+              <th>✨</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="pokemon-table-body"></tbody>
+        </table>
+      </div>
+
+      <div id="tracker-no-results" hidden>
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3" style="margin:0 auto 12px;display:block">
+          <circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2M9 9h.01M15 9h.01"/>
+        </svg>
+        <p>No Pokémon match your filters.</p>
+      </div>
+
+      <nav id="tracker-pagination"></nav>
+    </section>
+  </main>
+
+  <!-- ===== TRACKER MODAL ===== -->
+  <div id="tracker-modal" class="tracker-modal-overlay" hidden>
+    <div class="tracker-modal-box" id="tracker-modal-box">
+      <button class="tracker-modal-close" id="tracker-modal-close">&times;</button>
+      <div id="tracker-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="import-input" accept=".json" style="display:none"/>
+
+  <script type="module" src="/src/js/tracker.js"></script>
+</body>
+</html>

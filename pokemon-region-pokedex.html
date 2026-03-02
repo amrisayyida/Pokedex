@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Regional Pokédex — see all Pokémon in a specific region with regional numbers." />
+  <title>Regional Pokédex</title>
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Header -->
+  <header id="app-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="index.html" class="logo">
+          <svg class="pokeball-icon" viewBox="0 0 100 100" width="30" height="30">
+            <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="4"/>
+            <path d="M2,50 H98" stroke="currentColor" stroke-width="4"/>
+            <circle cx="50" cy="50" r="16" fill="none" stroke="currentColor" stroke-width="4"/>
+            <circle cx="50" cy="50" r="8" fill="currentColor"/>
+          </svg>
+          <h1>Pokédex</h1>
+        </a>
+        <nav class="header-nav">
+          <a href="pokemon-region-pokedex.html?region=kanto" class="nav-link active">Region</a>
+          <a href="generation-pokedex.html?gen=generation-i" class="nav-link">Generation</a>
+          <a href="pokemon-game-pokedex.html?game=yellow" class="nav-link">Game</a>
+        </nav>
+      </div>
+
+      <div class="header-center">
+        <div class="header-search">
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search Pokémon..." autocomplete="off" />
+          <div class="search-shortcut">/</div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <nav class="header-nav">
+          <a href="tracker.html" class="nav-link">Tracker</a>
+          <a href="generator.html" class="nav-link">Random</a>
+          <a href="settings.html" class="nav-link admin-link">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+            Setting
+          </a>
+        </nav>
+        <button id="filter-toggle" class="filter-toggle-btn" aria-label="Toggle Filters">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M6 12h12M8 18h8"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main id="app-main">
+    <!-- Category Sidebar -->
+    <aside id="filter-sidebar" class="filter-sidebar">
+      <div class="filter-sidebar-header">
+        <h2 id="sidebar-category-title">Regions</h2>
+      </div>
+      <div class="filter-sidebar-content" id="sidebar-content">
+        <!-- Dynamic Category Links will be injected here -->
+      </div>
+    </aside>
+
+    <section id="pokemon-section" class="pokemon-section">
+      <div class="grid-controls">
+        <div class="grid-header-left">
+          <p id="result-count" class="result-count">Loading Pokémon...</p>
+        </div>
+        <div class="grid-header-right">
+          <select id="sort-select">
+            <option value="default">Default Order</option>
+            <option value="id-asc">ID (Low to High)</option>
+            <option value="id-desc">ID (High to Low)</option>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+          </select>
+        </div>
+      </div>
+      <!-- Progress Bar -->
+      <div id="load-progress" class="load-progress">
+        <div class="load-progress-track">
+          <div id="load-progress-bar" class="load-progress-bar"></div>
+        </div>
+        <p id="load-progress-text" class="load-progress-text">Loading Pokémon... 0 / ?</p>
+      </div>
+      <div id="pokemon-grid" class="pokemon-grid"></div>
+      <div id="no-results" class="no-results" hidden>
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+          <circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2M9 9h.01M15 9h.01"/>
+        </svg>
+        <p>No Pokémon found matching your search</p>
+      </div>
+      <nav id="pagination" class="pagination" hidden></nav>
+    </section>
+  </main>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal-overlay" hidden>
+    <div class="modal-content" id="modal-content">
+      <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+      <div id="modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="footer-content">
+      <p>&copy; 2026 PokéPedia — All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/js/regionPokedex.js"></script>
+</body>
+</html>

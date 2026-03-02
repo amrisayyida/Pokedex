@@ -3,6 +3,19 @@ import fs from 'fs';
 import path from 'path';
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      input: {
+        main:    path.resolve(__dirname, 'index.html'),
+        tracker: path.resolve(__dirname, 'tracker.html'),
+        generator: path.resolve(__dirname, 'generator.html'),
+        settings: path.resolve(__dirname, 'settings.html'),
+        'pokemon-game-pokedex': path.resolve(__dirname, 'pokemon-game-pokedex.html'),
+        'pokemon-region-pokedex': path.resolve(__dirname, 'pokemon-region-pokedex.html'),
+        'generation-pokedex': path.resolve(__dirname, 'generation-pokedex.html'),
+      }
+    }
+  },
   plugins: [{
     name: 'save-exclusions-plugin',
     configureServer(server) {

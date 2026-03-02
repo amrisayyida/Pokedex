@@ -58,8 +58,8 @@ async function init() {
     await store.loadAllEvolutionStages();
     renderGrid();
   }).catch(err => {
-    console.error('Failed to load all Pokémon:', err);
-    resultCount.textContent = 'Failed to load Pokémon. Please refresh.';
+    console.error('CRITICAL: Failed to load all Pokémon:', err);
+    if (resultCount) resultCount.textContent = 'Failed to load Pokémon. Please check console for details.';
   });
 }
 
@@ -213,27 +213,36 @@ function updateFilterUI() {
   const tags = filterManager.activeTags;
   const count = filterManager.activeCount;
 
-  if (count > 0) {
-    filterBadge.hidden = false;
-    filterBadge.textContent = count;
-  } else {
-    filterBadge.hidden = true;
+  if (filterBadge) {
+    if (count > 0) {
+      filterBadge.hidden = false;
+      filterBadge.textContent = count;
+    } else {
+      filterBadge.hidden = true;
+    }
   }
 
-  if (tags.length > 0) {
-    activeFiltersWrap.hidden = false;
-    activeFilterTags.innerHTML = tags.map(t =>
-      `<span class="filter-tag">${t.label}<button class="filter-tag-remove" data-key="${t.key}" data-value="${t.value}">&times;</button></span>`
-    ).join('');
-  } else {
-    activeFiltersWrap.hidden = true;
+  if (activeFiltersWrap && activeFilterTags) {
+    if (tags.length > 0) {
+      activeFiltersWrap.hidden = false;
+      activeFilterTags.innerHTML = tags.map(t =>
+        `<span class="filter-tag">${t.label}<button class="filter-tag-remove" data-key="${t.key}" data-value="${t.value}">&times;</button></span>`
+      ).join('');
+    } else {
+      activeFiltersWrap.hidden = true;
+    }
   }
 
-  document.getElementById('type-count').textContent = filterManager.filters.types.length || '';
-  document.getElementById('stage-count').textContent = filterManager.filters.stages.length || '';
-  document.getElementById('gen-count').textContent = filterManager.filters.generation ? '1' : '';
-  document.getElementById('game-count').textContent = filterManager.filters.game ? '1' : '';
-  document.getElementById('cat-count').textContent = filterManager.filters.categories.length || '';
+  const setCount = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val || '';
+  };
+
+  setCount('type-count', filterManager.filters.types.length);
+  setCount('stage-count', filterManager.filters.stages.length);
+  setCount('gen-count', filterManager.filters.generation ? '1' : '');
+  setCount('game-count', filterManager.filters.game ? '1' : '');
+  setCount('cat-count', filterManager.filters.categories.length);
 
   document.querySelectorAll('[data-filter="stage"]').forEach(cb => {
     cb.checked = filterManager.filters.stages.includes(cb.value);

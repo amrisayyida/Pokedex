@@ -48,6 +48,14 @@ export async function fetchAllVersions() {
   return data.results;
 }
 
+export async function fetchPokedex(nameOrId) {
+  return cachedFetch(`${BASE_URL}/pokedex/${nameOrId}`);
+}
+
+export async function fetchGeneration(nameOrId) {
+  return cachedFetch(`${BASE_URL}/generation/${nameOrId}`);
+}
+
 // Helper to format names (kebab-case to Title Case)
 function formatName(str) {
   if (!str) return '';
